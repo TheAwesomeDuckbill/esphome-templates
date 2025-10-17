@@ -1,1 +1,50 @@
 
+# === ble-proxy.yaml (TEMPLATE) ===
+substitutions:
+  devicename: ""       # Wird vom Gerät-Overlay gesetzt
+  ap_password: ""      # Wird pro Gerät gesetzt (einzigartig!)
+
+esphome:
+  name_add_mac_suffix: true
+  project:
+    name: duckbill.ble-proxy
+    version: 1.0.0              # Bei Releases anheben
+  platformio_options:
+    upload_speed: 115200
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino               # Erzwingt Arduino – nie wieder "esp-idf" Überraschung
+
+logger:
+  level: INFO
+
+api: {}                         # KEIN globaler Key hier – kommt pro Gerät
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+  safe_mode: true
+  reboot_timeout: 5min
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  # fast_connect: true          # Nur wenn SSID versteckt oder Kanal fix – sonst auslassen
+  ap:
+    ssid: "${devicename} Fallback"
+    password: ${ap_password}
+
+captive_portal:
+
+# Für BLE-Proxy reicht 'bluetooth_proxy:' – 'esp32_ble_tracker:' ist optional.
+bluetooth_proxy:
+# esp32_ble_tracker:            # Optional; schadet nicht, ist aber nicht zwingend
+#   # logs leiser stellen? siehe Geräte-Overlay
+#   # scan_parameters: ...      # Nicht nötig für Proxy
+
+dashboard_import:
+  package_import_url: github://TheAwesomeDuckbill/esphome-templates/ble-proxy.yaml@main
+  import_full_config: true
